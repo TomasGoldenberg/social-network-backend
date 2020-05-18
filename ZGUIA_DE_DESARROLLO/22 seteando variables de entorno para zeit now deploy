@@ -1,0 +1,54 @@
+155- Ya tenemos un despliege serverless con zeit Now
+ ahora setearemos variables de entorno especificas.
+
+tambien veremos como desplegar todo esto en local
+
+primero vamos con las variables de entorno
+156 en now.json
+{
+    "version":2,
+    "env": {
+	"API_PORT" : 3000	
+
+	"MYSQL_HOST": "remotemysql.com" ,
+	"MYSQL_USER": "i4ifwNuCCc",
+	"MYSQL_PASS" : "ZqUDG2jiGk",
+	"MYSQL_DB": "i4ifwNuCCc",
+	
+	"MYSQL_SRV_HOST" : "localhost",
+	"MYSQL_SRV_PORT" : 3001
+		}
+
+
+    "builds": [
+        {
+                "src":"api/index.js",
+                "use":"@now/node"
+    },{
+                "src":"post/index.js",
+                "use": "@now/node"
+        }
+            ],
+    "routes":[{
+                "src" : "/api/auth(.*)",
+                "dest" : "/api/index.js"
+    },{
+                "src" : "/api/user(.*)",
+                "dest": "/api/index.js"
+    },{
+                "src":"/api/post(.*)",
+                "dest": "/post/index.js"
+    }]
+}
+
+//para comprobar que neustras variables de entorno esten funcionando correctamente, en config.js le sacaremos el || "remotemysql.com"
+y si arranca es que estan funcionando bien!
+
+//POR EJEMPLO SI PARA DESPLEGAR SERVERLESS QUEREMOS QUE TENGA X VALORES LOS SETEAMOS AQUI Y SI ES EN LOCAL O OTRA COSA DEJAMOS QUE SIGAN FUNCIONANDO LOS || "" de config.js 
+
+
+157 un nuevo feature de now es el comaando 
+now dev 
+es una vista previa de todo l oque desplegara pero en local, esta disponible en el port localhost:3000
+
+esto sirve para desarrollo antes de desplegar 

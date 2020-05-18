@@ -1,0 +1,56 @@
+114 vamos a crear funciones para traer los seguidos de los usuarios
+
+user/network.js
+
+router.get("/:id/following",following)
+
+function following(req ,res,next){
+    return controller.following(req.params.id)
+        .then((data)=>{
+            response.success(req,res,data,200)
+            console.log(data)
+        })
+        .catch(next)
+    
+}
+
+
+115 user/controller
+
+       async function following(user){
+           const join={}
+           join[TABLA] = "user_to" //{user:user_to}
+           const query= {user_from :user}
+
+           return await store.query(TABLA + "_follow",query,join)
+       } //el +"_follow" es para avisarle que la tabla es user_follow
+		//TABLA= user ; TABLA+"_FOLLOW" = user_follow
+
+
+116 mysql.js
+
+function query(table, query,join){
+    let joinQuery="";
+    if(join){
+        const key = Object.keys(join)[0];
+        const value = join[key];
+        joinQuery= `JOIN ${key} ON ${table}.${value} = ${key}.id`
+    }
+
+    return new Promise( (resolve, reject)=>{
+        connection.query(`SELECT * FROM ${table} ${joinQuery} WHERE ?`, query, (err,result)=>{
+            if(err) return reject(err);
+
+            resolve(result[0]) || null;
+        });
+    } );
+}
+
+
+117 vamos a insomnia 
+creamos una peticion get llamada following
+loggeamos un usuario
+con su token en el auth de esta nueva peticiion hacemos
+SIN BODY
+api/user/el id del user que veremos sus seguidos/following
+y nos trae a los que el sigue

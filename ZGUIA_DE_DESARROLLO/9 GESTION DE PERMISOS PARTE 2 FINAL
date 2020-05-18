@@ -1,0 +1,115 @@
+65 HASTA ACA TENEMOS EL TOKEN Y LO DECIFRAMOS PERO AUN NO COMPROBAMOS SI SE PUEDE HACER O NO  LA EDICION DE ALGUN PERFIL
+CREAMOS EL MIDDLEWARE DE autenticacion , LAS FUNCIONES DE PROBAR SI ES O NO EL USUARIO que pueda editar solo su informacion
+PERO AUN NO HICIMOS LA VALIDACION FINAL
+VAMOS POR ELLA
+
+66- EN AUTH DE LA RAIZ DEL PROYECTO EN EL INDEX.JS
+en la funcion OWN 
+
+
+const check= {
+    own:function(req, owner){
+        const decoded = decodeHeader(req);
+        console.log(decoded)
+
+	//comprobar si es o no el user propio para editar solo SU info
+    },
+}
+
+ 
+67 en /COMPONENTS/USER/NETWORK AÑADIREMOS EL MIDDLEWARE: SECURE
+ya que es este middleware el que maneja que si se hace un update , se haga la comprobacion si el user esta modificando SU Informacion
+
+const express = require("express");
+const secure = require("./secure")
+const response = require(".response./../../network/response")
+const controller = require("./index")
+
+const router = express.Router();
+
+//ROUTES
+router.get("/", list)
+
+router.get("/:id", get)
+
+router.post("/",upsert);
+
+router.put("/",secure("update"),upsert) //update seria la accion que le pasaremos al switch de secure
+
+68 en insomnia creamos un user
+   le hacemos el login y copiamos su token
+   le hacemos el put en api/user y en auth bearer pegamos el token
+	se va a colgar insomnia no importa es porque no le pusimos el next en nigun lado  pero significa que si llego el token 
+pero en consola si se identifico el token 
+del id del user que hizo la peticion
+ya lo tenemos ahora vamos a la funcion own a hacer la validacion
+	
+69 EN AUTH DE LA RAIZ DEL PROYECTO EN EL INDEX.JS
+en la funcion OWN 
+
+
+const check= {
+    own:function(req, owner){
+        const decoded = decodeHeader(req);
+        console.log(decoded)
+
+	if(decoded.id !== owner){
+	throw new Error("No puedes editar esto")
+	}
+    },
+}
+
+
+70 hasta aca lo que estamos haciendo con el token del usuario melina que tiene X id, va a querer cambiarse el id al de otro usuario
+asi que le decimos no puedes editar esto
+
+71 en insomnia creamos el user melina
+   le hacemos login 
+   le hacemos el put que y en el body le ponemos id 1 x ejemplo 
+   y le responde no puedes editar esto
+
+72 que pasa si quiere modificar algo que si puede por ejemplo poner el id que si le corresponde? 
+ en SECURE.JS
+const auth = require("../../../auth");
+
+module.exports= function checkAuth(action){
+
+    function middleware(req,res,next){
+        switch(action){
+            case "update":
+                const owner = req.body.id;
+                auth.check.own(req,owner)
+		next() //continua pasaste la autorizacion
+                break
+            
+            default:
+                next()
+
+        }
+    }
+
+return middleware;
+}
+
+73 en insomnia creamos el user melina //la consola nos da su id
+   le hacemos login 
+   le hacemos el put y le ponemos su id correctamente 
+	todo bien!! nos da status 201
+
+   lo mismo si en lugar del id es el name
+ le cambiamos el name a tuculitosacallama 
+ pero como ya sabemos que esta modificando info de su perfil lo dejamos
+   nos devuelve status 201
+
+si vamos a ver la lista de usuarios melina se llama tuculitosacallama
+SI HACEMOS LO MISMO Y PERO MODIFICANDO UN PELITO EL ID YA TE LO NIEGA
+
+
+74 YA CREAMOS AUTENTICACION BASADA EN TOKENS ,
+   ASEGURAMOS QUE TODO ESTE CIFRADO
+   Y VERIFIAMOS QUE PUEDAS O NO PUEDAS HACER ACCIONES
+  SEGUN QUIEN SEAS LO QUE QUIERAS HACER Y LOS PERMISOS QUE TENGAS
+
+
+FELICITACIONES YA TENES LA AUTENTICACION TOTALMENTE COMPLETA!!!!
+   

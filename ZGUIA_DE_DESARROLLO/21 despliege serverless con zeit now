@@ -1,0 +1,81 @@
+151 ya vimos como desplegar nuestros servicios en maquinas virttuales o servidores en una terminal con PM2
+
+- hay otra forma de desplegar que es serverless
+es como trabajar con piezas de codigo ejecutandose en la nube
+sin preocuparnos de levantar el server , donde estan los microservicios etc
+
+-esto implica que todos nuestros microservicios seran publicos
+por eso tendremos la base de datos en una cadena , sin tener que exponerla
+
+-lo haremos con zeit Now
+que es Zeit Now , es una plataforma serverless, corrre sobre aws
+ Levantara cada uno de tu servicio como una funcion que   		empezara ,respondera y 	terminara
+
+-vamos a zeit.co 
+	creamos una cuenta
+	 creamos un nuevo proyecto//lo podemos importar desde github
+	o lo hacemos desde la terminal //asi lo haremos
+
+-terminal: npm i -g now
+
+-que necesitamos para desplegar nuestro servicio en node
+
+-terminal: now // hace el build y genera una url //OPEN LINK
+
+-lo abrimos en el navegador 
+- y nos serve el repo(las carpetas) //pero no lo queremos asi
+
+- si abrimos el link y le agregamos/_logs nos da la info del deploy 
+152 EN CONFIG.JS
+agregamos 
+remoteDB: process.env.REMOTE_DB || false,
+
+153 en components/user/index
+const config = require("../../../config")
+let store;
+
+if(config.remoteDB === true){
+    store = require("../../../store/remote-mysql");
+}else{
+    store = require("../../../store/mysql");
+ }
+
+const controller = require("./controller");
+
+module.exports = controller(store);
+
+154 en la raiz del proyect creamos el archivo NOW.JSON
+{
+   "version": 2,
+   "builds" : [{
+		"src": "api/index.js",
+		"use": "@now/node"		
+		},
+		{
+		"src": "post/index.js",
+		"use": "@now/node"		
+		}],
+  "routes":[{
+		"src" : "/api/auth(.*)", //las peticiones a auth
+		"dest": "/api/index.js"	  // las lleva a api/index
+		},
+	    {
+		"src": "/api/user(.*)",
+		"dest": "/api/index.js"	
+		},
+		{
+		"src" : "/api/post(.*)",
+		"dest": "/post/index.js" 
+		}]
+}
+
+155 TERMINAL :now
+
+// COMPILA...
+// NOS DEVUELVE OTRA URL
+//LO ABRIMOS EN EL BROWSER
+//EN LA URL HACEMOS LA URL/API/USER 
+ Y YA NOS TRAE LOS USERS!
+//EN LA URL HACEMOS LA URL/API/POST
+ y ya nos trae los posts
+

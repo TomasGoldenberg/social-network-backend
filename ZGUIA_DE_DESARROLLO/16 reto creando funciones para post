@@ -1,0 +1,106 @@
+1 funcion de obtener post por id
+
+controller
+ function get(id){
+        return store.get(TABLA,{id})
+    }
+
+network
+router.get("/:id", get)
+
+function get (req,res,next){
+    controller.get(req.params.id)
+    .then((post)=>{
+        response.success(req,res,post,200)
+    })
+    .catch(next);
+};
+
+en insomnia api/post/0002
+--------------------------------------------------------------------
+2 funcion de insertar post
+netwokr
+
+router.post("/",upsert);
+
+function upsert(req ,res, next){
+    controller.upsert(req.body)
+    .then((post)=>{
+        response.success(req,res,post,201)
+    })
+    .catch(next);
+};
+
+controller 
+const{ nanoid} = require("nanoid");
+
+    async function upsert(data){
+        const post={
+            title: data.title,
+            text: data.text,
+            user: data.user
+        }
+
+        if(data.id){
+            post.id = data.id;
+        }else{
+            post.id= nanoid()
+        }
+
+        return store.upsert(TABLA, post)
+    }
+
+    return{
+    list,
+    get,
+    upsert
+    }
+
+en insomnia
+POST api/post
+{
+	"id":"0003",
+	"title":"aprendizaje",
+	"text":"esto es posible",
+	"user":"123"
+	}
+
+3 funcion para editar un post
+network
+const secure = require("./secure");
+router.put("/",secure("update"),upsert)
+
+en POST creamos el archivo SECURE.JS
+const auth = require("../../../auth");
+
+module.exports= function checkAuth(action){
+
+	function middleware(req,res,next){
+	switch(action){
+	case "update":
+	const owner = req.body.user
+	auth.check.own(req,owner)
+	next()
+	break
+	
+	default:
+	next()
+	}
+        }
+
+return middleware;
+}
+
+en insomnia hacemos loggin con un usuario copiamos su token
+
+creamos una peticion PUT api/post pegamos su token en auth bearer
+
+{
+	"id": "0003",
+	"title":"cambios",
+	"text":"notalos",
+	"user": "123"
+	}
+
+
+

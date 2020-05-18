@@ -1,0 +1,96 @@
+54-ya tenemos los tokens vinendo pero las contraseñas siguen guardadas en plano, si vamos a gestionar las users hay que cifrar las passwords
+utilizaremos librerias de cryptografria
+
+bcrypt te permite hashear un texto y comparar si la password ingresada generaria el hash de la password establecida
+
+55 TERMINAL npm i bcrypt
+56 components/auth/controller.js
+
+const bcrypt = require("bcrypt");
+const auth = require("../../../auth")
+const TABLA = "auth";
+
+module.exports= function(injectedStore){
+    const store = injectedStore;
+    if(!store){
+        store = require("../../../store/dummy");
+    }
+
+
+    async function login (username, password){
+//funcion 
+    }
+
+ async function upsert(data){
+        const authData={
+            id: data.id
+        }
+
+        if(data.username){
+            authData.username= data.username
+        }
+
+        if(data.password){
+            authData.password= await bcrypt.hash(data.password,5);
+        }//el 5 es la cantidad de veces que se ejecuta el algoritmo de 					encryptacion
+
+        return store.upsert(TABLA, authData)
+    }
+
+    return{
+        upsert,
+        login
+    }
+}
+
+
+57-en insomnia creamos un user en api/user 
+ y veremos en consola que la password ya no es texto plano sino un hash
+//aunque crees el mismo usuario con la misma password una y otra vez 
+//el hash sera distinto cada vez
+
+58-haremos la comparacion en el login para ver si el texto ingresado hace sentido con el hash de la password establecida
+components/auth/controller.js
+
+const bcrypt = require("bcrypt");
+const auth = require("../../../auth")
+const TABLA = "auth";
+
+module.exports= function(injectedStore){
+    const store = injectedStore;
+    if(!store){
+        store = require("../../../store/dummy");
+    }
+
+
+    
+     async function login (username, password){
+        const data = await store.query(TABLA,{ username: username})
+	return bcrypt.compare(password, data.password)
+	   .then(sonIguales =>{
+		if(sonIguales ===true){
+            	   return auth.sign(data)//generar token
+        	}else{
+           	   throw new Error("Usuario o contraseña no valida")
+       			 }
+	    });
+        }
+    
+
+ async function upsert(data){
+///////
+    }
+
+    return{
+        upsert,
+        login
+    }
+}
+
+59- en insomnia creamos un usuario 
+ y luego le hacemos login y ya nos devuelve un token
+//hemos comparado si las passwords son las mismas , sin tener que comparar texto plano
+YA CREAMOS UNA CAPA EXTRA DE SEGURIDAD
+EN LA SIGUIENTE CLASE VEREMOS COMO HACER QUE LOS USUARIOS PUEDAN O NO PUEDAN TENER ACCESO A CIERTAS COSAS
+
+

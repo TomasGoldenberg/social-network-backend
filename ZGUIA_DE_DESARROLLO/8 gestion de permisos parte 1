@@ -1,0 +1,112 @@
+60-ya con las contraseñas cifradas nuestro backend ya es seguro .
+saber si puede o no editar un perfil.
+vamos a meter un middleware de autenticacion
+//no vamos a permitir llegar a la logica del componente si no tenes permisos
+61 en USER vamos a rear el archivo SECURE.JS
+este archivo va a exportar un middleware
+
+const auth = require("../../../auth")
+
+module.exports=function checkAuth(action){//(la accion qe ejecutaremos)
+
+	function middleware(req,res, next){
+	  switch(action){
+		case "update":
+			const owner = req.body.id
+			auth.check.own(req, owner)             **1
+			break
+
+		default : 
+			next()	
+		}
+	}
+
+return middleware;
+}
+GLOSARIO--------------------
+**1 auth= el archivo del que importamos a
+    check= un objeto que tiene varias funciones
+    own= una funcion dentro del obj check
+------------------------------
+
+62- en config.js 
+module.exports={
+    api:{
+        port: process.env.API_PORT || 3000
+    },
+    jwt:{
+	secret: process.env.JWT_SECRET || "no vino el secret"
+	}
+}
+
+63- vamos al AUTH de la raiz del proyecto a index.js
+vamos a decodificar el token
+const jwt = require("jsonwebtoken");
+const config = require("../config")
+const secret = config.jwt.secret
+
+function sign(data){
+return jwt.sign(data,secret)
+}
+
+function verify(token){
+	return jwt.verify(token, secret)
+}
+
+function getToken(auth){
+	if(!auth){
+	throw new Error("no vino token")
+	}
+	
+	if(auth.indexOf("Bearer ") === -1){
+	throw new Error("formato invalido")
+	}
+
+	let token= auth.replace("Bearer ", "")
+	return token
+}
+
+
+
+function decodeHeader(req){
+	const authorization = req.headers.authorization || "";
+	const token = getToken(authorization);
+	const decoded =  verify(token)
+
+	req.user = decoded
+
+	return decoded
+}
+
+const check= {
+own : function(req,owner){
+	const decoded = decodeHeader(req)
+	console.log(decoded)
+	}
+}
+
+module.exports ={
+    sign,
+	check
+	
+}
+
+
+64- en insomnia creamos un user
+   le hacemos el login
+creamos otra peticion llaamada editar usuario
+
+ sera PUT {
+	"id": "1",
+	"name":"melina",
+	"username":"bysubliminal",
+	"password": "asia2020"
+	}
+
+asi creamos un usuario con un id que supuestamente no podria modificar
+porque no tengo permisos no soy ese usuario
+no he añadido el token , para añadirlo mira la proxima clase y se aclara esto que no se entiende una mierda 
+
+HASTA ACA TENEMOS EL TOKEN Y LO DECIFRAMOS PERO AUN NO COMPROBAMOS SI SE PUEDE HACER LA EDICION DE UN PERFIL
+CREAMOS EL MIDDLEWARE DE autenticacion , LAS FUNCIONES DE PROBAR SI ES O NO
+PERO AUN NO HICIMOS LA VALIDACION FINAL

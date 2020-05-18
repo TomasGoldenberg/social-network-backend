@@ -1,0 +1,79 @@
+118- vamos a crear la entidad post 
+en phpmyadmin creamos la tabla post
+post varchar 32 PK
+title varchar 64
+text text
+user varchar 32 //seria el id del author
+
+
+insertamos un campo un primer post para poder hacer el siguiente ejercicio, crear una funcion para ver los posts de la DB
+
+119 en el index.js de API
+
+const post = require("./components/post/network")
+
+
+app.use("/api/post", post) //cada url que tenga el post, la carpeta 					post se encargara de manejarla
+
+
+120 en COMPONENTS creamos la carpeta POST
+121 en POST creamos el archivo network.js
+const express = require("express");
+
+const response = require("../../../network/response");
+const controller = require("./index");
+
+const router = express.Router();
+
+//routes
+
+router.get("/", list)
+
+//functions
+
+function list(req,res,next){
+    controller.list()
+        .then((data)=>{
+            response.success(req,res,data,200)
+        })
+        .catch(next)
+    
+}
+
+module.exports =router
+
+
+122 en POST creamos el archivo controller
+const TABLA = "post"
+
+module.exports = function(injectedStore){
+    let store = injectedStore;
+    if(!store){
+        store = require("../../../store/dummy")
+    }
+
+    function list(){
+     return   store.list(TABLA)
+    }
+
+
+
+    return{
+    list,
+    }
+}
+
+123 en POST creamos el archivo index.js
+const store = require("../../../store/mysql");
+const controller = require("./controller");
+
+module.exports= controller(store)
+
+124 vamos a insomnia creamos una nueva peticion get llamada leer posts
+	GET localhost:3000/api/post
+
+ y nos devuelve la tabla de posts creados en la base de datos!!!
+
+125  RETO CREA EL RESTO DE FUNCIONES PARA PODER AÑADIR UN POST
+LEER UN POST POR ID Y PODER EDITAR UN POST
+

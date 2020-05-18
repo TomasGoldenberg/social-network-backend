@@ -1,0 +1,82 @@
+167 vamos a conectarnos a redis en redislabs.com que nos da una prueba gratuita
+try free
+login
+crear base de datos
+
+168 terminal: npm i redis
+
+169 vamos a redis.js
+const redis = require("redis");
+const config = require("../config")
+
+const client = redis.createClient({
+	host: config.redis.host,
+	port:  config.redis.port,
+	password:config.redis.password,
+	});
+
+function list(table){
+	return new Promise( (resolve,reject)=>{
+		cliente.get(table, (err,data)=>{
+		if(err) {return reject(err)}
+
+		let res= data || null;		
+		if(data){
+		res.JSON.stringify(data)
+		}
+		resolve(res)
+		
+					})
+						} )
+}
+function get(table,id){
+const search =  `${table_${id}  `
+return list(search) 
+}
+
+async function upsert(table, data){
+let key = table;
+if(data && data.id){
+	key =  key +""+ data.id
+	}
+
+client.setex(key, 10,JSON.stringify(data));//setex=Set expiratio
+return true
+}
+
+module.exports={
+list,
+get,
+upsert
+}
+
+
+
+170 config.js
+redis:{
+host: process.env.REDIS_HOST || 
+port:process.env.REDIS_PORT   ||
+password:process.env.REDIS_PASS ||
+}
+
+170 inicialiazmos el nodemon cache/index.js
+
+en insomnia new request CACHE
+
+GET localhost:3003/user
+//no viene nada
+
+en esta misma url hacemos un put 
+con un json creando un user
+name
+
+GET localhost:3003/user
+//esta el user!!
+
+pasan los 10 segundos de setex
+
+GET localhost:3003/user
+//expiro el cache
+
+
+

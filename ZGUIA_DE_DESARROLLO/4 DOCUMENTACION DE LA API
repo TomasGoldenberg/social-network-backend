@@ -1,0 +1,33 @@
+28 abrimos insomnia
+documentar la api 
+asi cualquier persona que quiera utilizarla pueda
+sean los frontend, o nuevos desarrolladores o abrila para opensource
+para que sepan que peticiones,entidades, como funcionan las entidades TODO
+es buena practica ir desarrollando e ir documentando 
+para eso esta swagger
+https:/editor.swagger.io 
+nos permite documentar las api
+ 
+es una pagina en la que del lado izq tenemos una suerte de json donde podemos ir documentando toda nuestra api muy facilmente y al terminarlo hasta podemos ir a file y guardarlo como in json
+
+29 vamos ala carpeta API creamos el archivo 
+swagger.json y pegamos todo el archivo que convertimos y descargamos como JSON
+
+30 terminal npm i swagger-ui-express
+
+
+31 index.js el de la raiz
+
+const swaggerUi = require("swagger-ui-express");
+
+const swaggerDoc = require("./swaggen.json");
+
+app.use("/api-docs",swaggerUi.serve, swaggerUi.setup(swaggerDoc))
+
+32 localhost:3000/api-docs
+Y NOS SIRVE EL DOCUMENTO QUE DOCUMENTAMOS EN SWAGGER
+
+
+
+
+

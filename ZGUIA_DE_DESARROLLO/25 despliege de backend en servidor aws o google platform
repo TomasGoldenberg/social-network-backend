@@ -1,0 +1,80 @@
+171- Ya tenemos nuestros microservicios de backend listos
+vamos a desplegar el un servidor virtual
+
+creamosuna cuenta en google cloud platform o aws 
+y abrimos su consola ssh
+Consola ssh:
+curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh
+
+sudo bash nodesourse_setup.sh
+
+sudo apt-get install -y nodejs
+
+sudo apt-get install git
+
+sudo npm i -g pm2
+
+//ya tenemos el repo en gituhub agarramos su url
+
+git clone LA URLLLL
+
+//entramos a la carpeta de la repo
+
+npm install
+
+pm2 start mysql/index.js
+pm2 start post/index.js
+pm2 start api/index.js
+
+172
+hasta aca esta el backend corriendo con sus microservicios desplegados en una maaquina virtual
+
+ en  pero no lo podemos exponer a internet porque necesitamos una url
+ no un localhost 
+
+ para esto utilizaremos nginx que nos servira como proxy 	(intermediario) que nos dara una url que sera el ip de la maquina donde esta sirviendo, pero si tenemos un domain seria con el domain arriba de este ip asi que seria www.tudominio/api/users etc 
+
+173 EN LUGAR de exponer node en el puerto 80 levantaremos un servicio de nginx que sera el proxy entre la peticion del cliente y el servicio de node
+
+cada vez que llega una peticion a la api , la redirije al microservicio correspondiente
+ASI SOLO EXPONEMOS LOS MICROSERVICIOS QUE QUEREMOS
+API Y POST EN ESTE CASO
+
+174 volvemos a la consola ssh de cloudplatform
+
+
+sudo apt-get install nginx
+
+sudo service nginx start //ya podemos ir ala ip de la maquina virtual 				  de la plataforma y veremos 
+//sudo service nginx stop// asi lo paramos , solo es informativa esta linea
+
+sudo nano /etc/nginx/sites-available/default  //aqui tenemos el config de nginx
+
+//abajo de server name , abajo de location}//crearemos nueestras rutas
+
+
+location /api/user {proxy_pass http://localhost:3000;}
+location /api/auth {proxy_pass http://localhost:3000;}
+
+location /api/post {proxy_pass http://localhost:3002;}
+
+ctrl + x para que se guarde
+yes , enter  //salimos de nano
+
+sudo service nginx restart
+
+
+175 la ip a continuacion es inventada, seria la ip de la maquina virtual que sirve los archivos
+
+35.654.564/api/user DEVUELVE LOS USERS
+35.654.564/api/POST DEVUELVE LOS POST
+
+
+176 CREAMOS NGINX COMO PROXY INTERMEDIO PARA QUE LAS PETICIONES QUE LLEGEN
+ EL LAS GESTIONE Y DECIDA QUE SERVICIO SE EXPONE Y  EN QUE RUTAS
+
+YA TENEMOS EL SERVIDOR DE PRODUCCION LEVANTADO CON MICROSERVICIOS Y EL PROXY 
+
+LISTO PARA DESPLEGAR Y UTILIZAR EN CUALQUIER PROGRAMA QUE QUERAMOS USAR
+
+

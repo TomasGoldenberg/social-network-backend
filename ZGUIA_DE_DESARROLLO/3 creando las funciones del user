@@ -1,0 +1,150 @@
+18- vamos a crear una estructura para que tu controller pueda atacar a una base de datos o a otra 
+19 en user creamos INDEX.JS
+const controller = require("./controller");
+const store = require("../../../store/dummy");
+
+
+
+
+module.exports = controller(store);//tenemos nuestro controller al que le 
+				  //inyectamos una DB
+
+20-------------------CONTROLLER---------------------------------------
+Ahora mismo el controller no es una funcion asi que modificamos
+
+const TABLA = "user";
+module.exports= function(injectedStore){
+
+let store = injectedStore;
+if(!store){
+store = require("../../../store/dummy")
+}
+
+function list(){
+return store.list(TABLA)
+} 
+
+function get(id){
+return store.get(TABLA,id)
+} 
+
+return{
+list,
+get
+	}
+}
+
+21----------------------------------NETWORK-------------------------------
+
+CAMBIAMOS const controller = require("./controller"); PORRR
+const controller = require("./index");
+
+router.get("/", function(req,res){
+      controller.list()
+     .then((lista)=> {
+	 response.success(req,res,lista,200)
+	})  
+     .catch((e)=> {
+	    response.error(req,res,e.message,500)
+	})
+})
+
+
+router.get("/:id", function(req,res){
+  controler.get(req.params.id)
+   .then((user)=>{
+     response.success(req,res,user,200)
+	})
+   .catch((e)=> {
+     response.error(req,res,e.message,500)
+	})
+}
+
+22-------------------DUMMY----------------------------------------------
+todas las querys pueden tener errores, por eso todas las funciones de dummy deben ser async asi devuelven una promesa y es mas facil manejar errores
+
+async function list(table){
+return db[table]
+}
+
+async function get(table,id){
+  let col = await list(table)
+     return col.filter(item => item.id === id)[0] || null;
+}
+23-npm i body-parser
+24 npm i nano id
+25 index.js el de la raiz
+const bodyParser = require("body-parser");
+
+
+const app= express();
+
+app.use(bodyParser.json())
+
+26 refactorizar network.js
+//ROUTES
+router.get("/", list)
+
+router.get("/:id", get)
+
+router.post("/",upsert);
+
+router.put("/",upsert)
+
+
+//internal function
+
+function list(req,res){
+    controller.list()
+    .then((lista)=>{
+        response.success(req,res,lista,200)
+    })
+    .catch((e)=>{
+        response.error(req,res,e.message,500)
+    });
+};
+
+function get (req,res){
+    controller.get(req.params.id)
+    .then((user)=>{
+        response.success(req,res,user,200)
+    })
+    .catch((e)=>{
+        response.error(req,res,e.message,500)
+    });
+};
+
+function upsert(req ,res){
+    controller.upsert(req.body)
+    .then((user)=>{
+        response.success(req,res,user,201)
+    })
+    .catch((e)=>{
+        response.error(req,res,e.message,500)
+    });
+};
+
+module.exports = router;
+
+27-agregar upsert en controller.js
+function upsert(body){
+        const user = {
+            name:body.name
+        }
+
+        if(body.id){
+            user.id = body.id;
+        }else{
+            user.id = nanoid();
+        }
+
+        return store.upsert(TABLA, user)
+    }
+    return{
+        list,
+        get,
+        upsert
+    }
+}
+
+

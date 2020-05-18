@@ -1,0 +1,60 @@
+13 en la raiz del proyecyo creamos la carpeta STORE
+14 en STORE crearemos una pequeña DB falsa para ver qe todo funcione
+   dummy.js
+const db = {
+	"user":[
+		{id:1 , name:"tomas"},
+		{id:2 , name: "melina"}
+	],
+};
+
+function list(table) {
+return db[table]
+}
+
+function get(table, id) {
+let coleccion = list(table)
+
+return collecion.filter(item => item.id === id)[0] || null;
+}
+
+
+function upsert(table, data ){
+db[collection].push(data);
+}
+function remove(table ,id){
+return true
+} 
+
+module.exports = {
+list,
+get,
+upsert,
+remove
+}
+
+15 en la carpeta USER creamos el archivo CONTROLLER.JS
+const store = require("../../../store/dummy");
+
+const TABLA = "user"
+
+function list(){
+return store.list(TABLA)
+}
+
+module.exports={
+list
+}
+
+16- en user/network
+const controller = require("./controller")
+
+router.get("/"),function(req,res){
+const lista = controller.list();
+response.success(req,res,lista,200)
+
+}
+
+17 ya en la ruta localhost:3000/api/user nos llegan los user
+ya tenemos la logica de datos separada en la base de datos,
+asi ya separamos el controller de las querys que hagamos.

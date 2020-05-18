@@ -1,0 +1,169 @@
+42 ya tenemos el registro listo 
+ ahora vamos a crear el login e IMPORTANTE no guardar la password en limpio
+vamos a crear un login normal y luego cifrar las passwords
+
+43 api/components/auth/controller.js
+
+const TABLA = "auth";
+
+module.exports= function(injectedStore){
+    const store = injectedStore;
+    if(!store){
+        store = require("../../../store/dummy");
+    }
+
+ async function login(username,password){
+	const data = await store.query(TABLA,{username : username});
+	console.log(data);
+	return data;
+	}
+
+    function upsert(data){
+////////////////////////contenido de upsert no relevante en esta clase
+    }
+
+    return{
+        upsert,
+	login
+    }
+}
+
+
+44- store/dummy
+
+async function list(table){
+    return db[table] ||[];
+}
+
+
+async function querys(tabla, query){
+ let col = await list(table)
+ let keys = Object.keys(q)
+ let key = keys[0]
+ return col.filter(item => item[key] === query[key])[0] || null;
+ //filtrara la data que venga de los items de la col, y para cada item[key] el key seria el username , sea igual al valor del [key] de query 
+
+}
+
+module.exports={
+    list,
+    get,
+    upsert,
+    remove,
+    query
+}
+
+45 en AUTH creamos el archivo NETWORK.JS
+const express = require("express");
+
+const response = require("../../../network/response");
+const controller = require("./index");
+
+const router = express.Router()
+
+router.post("/login", function(req,res){
+	controller.login(req.body.username , req.body.password)	
+	 .then((token)=> {
+		response.success(req,res,token,200);	
+	})
+	  .catch((e)=>{
+		response.error(req,res, "informacion invalida", 400)
+	});
+
+})
+
+module.exports = router
+
+46 index.js EL DE LA RAIZ DEL PROYECTO
+const auth = require("./components/auth/network");
+//          ROUTER
+app.use("/api/user", user);
+app.use("/api/auth" ,auth);
+
+app.listen(config.api.port, ()=>{
+    console.log("api inicializada en ", config.api.port)
+});
+//        /ROUTER
+
+47 en insomnia haremos un post localhost:3000/api/user
+{
+"name":"melina",
+"username":"melx",
+"password":"1234"
+}
+
+en insomnia haremos un POST en localhost:3000/api/auth/login
+{
+"username":"melx",
+"password":"1234"
+}
+
+//ya nos devuelve toda la info
+"error":false,
+"status":200,
+"body":{
+	"id":"6546dsf6_654agdesfjio!",
+	"username":"melx",
+	"password":"1234"
+}
+
+48 genial ya nos devuelve toda la info
+ahora en lugar de devolver toda la info , ahora vamos a comparar y veamos si la password hace sentido o no 
+/AUTH/CONTROLLER
+ async function login(username,password){
+	const data = await store.query(TABLA,{username : username});
+	if(data.password === password){
+	//generar token//lo haremos en el siguiente punto
+	return "token"	
+	}else{
+	    throw new Error("informacion invalida")
+	}
+     }
+
+49 como vimos recien hicimos un falso "token" ahora lo crearemos realmente
+en la RAIZ del proyecto crearemos la carpeta AUTH
+50 TERMINAL NPM INSTALL JSONWEBTOKEN
+51 en Auth creamos index.js
+const JWT = require("jsonwebtoken")
+
+function sign(data){
+return jwt.sign(data,"secret")//despues veremo como crear un verdadero secret
+}
+
+module.exports={
+sign,
+}
+
+52 en components/auth/controller.js
+const auth = require("../../../auth");
+ async function login(username,password){
+	const data = await store.query(TABLA,{username : username});
+	if(data.password === password){
+	//generar token
+	return auth.sign(data)
+	}else{
+	    throw new Error("informacion invalida")
+	}
+     }
+
+53
+ en insomnia haremos un POST en localhost:3000/api/auth/login
+{
+"username":"melx",
+"password":"1234"
+}
+Y YA NOS DEVUELVE EL TOKEN
+"error":false,
+"status":200,
+"body":"AOSIHFDISANFAPDF65465GDS7GSDPOJIDSJFS5D7G8754DSFG84DSF684DSFO"
+
+ya tenemos los usuarios registrados!! todo lo que falta es no cagarla con las passwords de guardarlas en publicamente , lo veremos en la siguiente clase
+hasta aca tenemos:
+el login , cuando nos viene un user y una password 
+ya somos capaces de verificar si de verdad ese el usuario y la password
+y sobre esos datos generar un token de acceso 
+que nos permita trabajar en la parte de autorizacion de si podes o no hacer algo
+
+en la siguiente clase veremos como cifrar las contraseñas
+
+

@@ -1,0 +1,142 @@
+83 BASE DE DATOS MySQL
+84 en config 
+
+module.exports={
+    api:{
+        port: process.env.API_PORT || 3000
+    },
+    jwt:{
+        secret:process.env.JWT_SECRET ||"NO SECRET"
+    },
+    mysql:{
+        host: process.env.MYSQL_HOST || "remotemysql.com",
+        user: process.env.MYSQL_USER|| "i4ifwNuCCc",
+        password: process.env.MYSQL_PASS || "ZqUDG2jiGk",
+        database: process.env.MYSQL_DB|| "i4ifwNuCCc",
+
+    }
+}
+85 en STORE creamos el archivo mysql.js
+
+const mysql = require("mysql");
+
+const config = require("../config");
+
+const dbconf = {
+    host:config.mysql.host,
+    user: config.mysql.user,
+    password: config.mysql.password,
+    database: config.mysql.database
+};
+86 vamos a https://remotemysql.com/ que es un mysql online gratis
+vamos a databases
+-create new database
+-Created!
+
+You have successfully created a new database. The details are below.
+
+Username: i4ifwNuCCc
+
+Database name: i4ifwNuCCc
+
+Password: ZqUDG2jiGk
+
+Server: remotemysql.com
+
+Port: 3306
+
+These are the username and password to log in to your database and phpMyAdmin
+
+86- vamos a mysql.js
+
+const mysql = require("mysql");
+
+const config = require("../config");
+
+const dbconf = {
+    host:config.mysql.host,
+    user: config.mysql.user,
+    password: config.mysql.password,
+    database: config.mysql.database
+};
+
+let connection;
+
+function handleCon(){
+	connection = mysql.createConnection(dbconf);
+
+	connection.connect((err)=>{
+		if(err){
+		console.error("[DB error]",err)
+		setTimeout(handleCon, 2000); // si hubo un problema a los 2 segundos reintentamos la coneccion
+		}else{
+		console.log("DB Connected!")
+		}
+
+		});
+
+	connection.on("error", err=>{
+		console.error("[DB error]",err)	
+		if(err.code === "PROTOCOL_CONNECTION_LOST"){
+			handleCon()//si el error fue que se perdio la coneccion volvemos a intentar conectarla
+		}else{
+		throw err;
+		}
+		})
+}
+
+handleCon()
+
+con esto ya deberia funcionar
+
+87 vamos a API/COMPONENTS/USER/INDEX 
+CAMBIAMOS const store = require("../../../store/dummy"); POR
+const store = require("../../../store/mysql");
+
+88vamos a API/COMPONENTS/AUTH/INDEX 
+CAMBIAMOS const store = require("../../../store/dummy"); POR
+const store = require("../../../store/mysql");
+
+88 TERMINAL npm i mysql
+89 inicializamos el server y nos debe dar el log
+DB connected!
+
+90 en remotemysql
+Username 	Size 	Created Date 		Action
+i4ifwNuCCc 	0 MB 	2020-04-01 22:06:24 	PHPMyAdmin
+91 le hacemos login con los datos que tenemos de nuestra DB
+
+92 vamos a crear una tabla para user
+
+id varchar 32 PK
+username varchar 32 
+name varchar 64
+
+guardar
+
+93 INSERTAR agregamos un campo(columna)
+id 123
+username golden
+name tomas
+
+94 en MYSQL.JS
+
+function list(table){
+  return new Promise( (resolve,reject)=>{
+  connection.query(`SELECT * FROM ${table}`,(err,data)=>{
+	if(err) return reject(err)
+	
+	resolve(data)
+							});
+					});
+}
+
+module.exports = {
+list
+}
+
+95 en insomnia hacemos el get a api/users para traer la lista de usuarios
+
+y ya nos esta trayendo los usuarios de la db real!
+
+

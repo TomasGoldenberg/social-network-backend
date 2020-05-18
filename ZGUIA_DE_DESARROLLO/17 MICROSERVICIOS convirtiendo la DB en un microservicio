@@ -1,0 +1,102 @@
+126 Bueno la verdad te felicito muy bien todo ya tenemos la estructura de un backend funcional con nodeJS ahora.
+mientras tu app tu producto siga creciendo vamos a tener mas y mas servicios ej posts ,users,fotos,chat etc
+y no va a ser la mejor idea tener TOOODO centralizado.
+Para solucionar este inconveniente existen los microservicios que consisten en dividir tu backend en pequeños backendsitos .
+no es la mejor practica comenzar a crear tu app con microservicios
+
+pero a medida que valla creciendo va a ser super importante ir modificando tu estructura a una estructura de microservicios para poder tener un producto mas estable y con mejor performance
+
+127 vamos a crear un primer microservicio : LA BASE DE DATOS
+vamos a crear un microservicio de la base de datos
+ para que? por ejemplo si necesitamos implementar machineLearning 
+para predecir cuales seran los productos mas demandados, probablemente lo hagamos con python y ya va a ser posible atacar esta base de datos(archivo de mysql) desde cualquier lenguaje ya que sera un microservicio aparte del  backend 
+
+128 en la raiz de proyecto crearemos una carpeta MYSQL
+129 creamos index.js
+const express = require("express");
+
+const bodyParser= require("body-parser")
+const config= require("../config")
+
+const app= express();
+const router= require("./network")
+app.use(bodyParser.json())
+
+//rutas
+
+app.use("/", router)
+
+
+app.listen(config.mysqlService.port,()=>{
+console.log("servicio de mqsql escuchando puerto",config.mysqlService.port)
+})
+
+130 config.js
+module.exports={
+    api:{
+        port: process.env.API_PORT || 3000
+    },
+    jwt:{
+        secret:process.env.JWT_SECRET ||"NO SECRET"
+    },
+    mysql:{
+        host: process.env.MYSQL_HOST || "remotemysql.com",
+        user: process.env.MYSQL_USER|| "i4ifwNuCCc",
+        password: process.env.MYSQL_PASS || "ZqUDG2jiGk",
+        database: process.env.MYSQL_DB|| "i4ifwNuCCc",
+
+    },
+    mysqlService:{
+	port: process.env.MYSQL_SRV_PORT || 3001
+	}
+}
+
+131 en la carpeta MYSQL creamos el archivo NETWORK.JS
+//aqui podremos crear las rutas hacias las tablas y sus rutas propias
+const express = require("express");
+
+const response = require("../network/response");
+const store = require("../store/mysql");
+
+const router = express.Router();
+//routes
+router.get("/:table" , list)
+
+router.ger("/:table/:id", get)
+
+router.post("/:table", upsert)
+
+router.put("/:table", upsert)
+//function
+async function list(req,res,next){
+const datos = await store.list(req.params.table)
+  response.success(req,res,datos,200)
+}
+
+async function get(req,res,next){
+const datos = await store.get(req.params.table, req.params.id)
+  response.success(req,res,datos,200)
+}
+
+async function upsert(req,res,next){
+const datos = await store.upsert(req.params.table, req.body)
+  response.success(req,res,datos,200)
+}
+
+
+
+
+module.exports = router;
+
+132  inicializamos el server pero asi nodemon mysql/index.js
+  vamos a insomnia creamos una nueva peticion MYSQL
+GET localhost:3001/user
+  ya nos trae todos los users
+GET localhost:3001/post
+ nos trae todos los posts
+
+
+YA TENEMOS TODA NUESTRA DB EN UN MICROSERVICIO SEPARADO DE LA API PRINCIPAL
+
+ahora vamos a conectar nuestra api a este microservicio en la sigueinte clase
+

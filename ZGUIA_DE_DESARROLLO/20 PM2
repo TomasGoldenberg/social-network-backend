@@ -1,0 +1,60 @@
+148- Imaginate tenes tu programa funcionando genial con 30 microservicios
+pero uno se cae ooo una peticion falla
+como sabes cual fue?
+para eso esta PM2
+Mas especificamente PM2 Logs
+
+es una herramienta para gestionar todos nuestros microservicios en produccion
+
+149- Pm2 
+
+
+NOS PERMITE 
+-EL COMPORTAMIENTO QUE TENEMOS
+-DONDE HAY UN PROBLEMA SI HAY UN PROBLEMA
+-RECARGAR SI SE CAE UN PROCESS
+-GESTIONAR LOS LOGS
+-GESTIONAR UNA RECARGA SI NOS ACERCAMOS A UN MAX DE MEMORIA
+-TRABAJAR EN CLUSTERS
+-RECARGAS EN REALTIME
+-SCRIPTS PARA CUANDO SE INICIE LA MAQUINA VIRTUAL PARA INICIAR LOS PROCESOS
+
+ES LA BASE DE LA GESTION DE NUESTROS MICROSERVICIOS EN PRODUCCION
+
+
+150 sudo npm install -g pm2 
+
+TERMINAL pm2 logs //node devuelve todos los logs
+	pm2 status //nos trae los processos activos y su info
+
+
+pm2 start api/index.js //nos aparece el primer procesos
+pm2 start mysql/index.js //nos aparecen los 2 process activos
+pm2 start post/index.js //los 3 
+
+ya tenemos los 3 procesos activos desde 1 terminal mucho mas comodo
+aparte si un processo muere pm2 lo reinicia esto es util para produccion
+
+
+
+
+pm2 logs // nos aparecen los logs y trambien NUESTROS LOGS! en un solo 			lugar, si hay un error o cualquier cosa vienen logs en		 real time
+
+
+
+pm2 status //nos trae todos los procesos
+id 	name	mode	styatus	cpu	memory
+0 	index	fork	online	0.5%	46mb
+1 	index	fork	online	0.5%	41mb
+2 	index	fork	online	0.2%	41mc
+
+
+si queremos ver los logs de sos un proceso utilizamos su id
+
+pm2 logs 0 // nos trae los logs del primer proceso
+
+pm2 stop 0 //para el primero
+pm2 stop 1 //para el 2do
+
+pm2 restart 2 //reinicia el 3er process
+

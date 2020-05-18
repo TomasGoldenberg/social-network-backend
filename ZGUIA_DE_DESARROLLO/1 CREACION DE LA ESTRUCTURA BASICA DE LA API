@@ -1,0 +1,62 @@
+PLATZI SOCIAL una red social minimalista!
+1 creamos la carpeta platzi-social
+2 npm init 
+3 TERMINAL:  npm install express --save
+4 Creamos el archivo CONFIG.JS
+	module.exports={
+	api:{
+  	   port: process.env.API_PORT || 3000	
+		}
+	}
+5 crear carpeta API para almacenar el servicio de la api(desde donde extraeremos los microservicio que nesesitaremos)
+6 en API creamos INDEX.JS //aqui construiremos el servidor y TODO
+const express = require("express");
+const config = require("../config.js") //archivo de configuracion
+const user = require("./components/user/network")
+
+const app = express()
+	//ROUTER
+app.use("/api/user", user)
+
+app.listen(congig.api.port, ()=>{
+	console.log("api inicializada en puerto " , config.api.port)
+});  //   /ROUTER
+7 en la raiz del proyecto creamos la carpeta NETWORK //Tendra todo lo de la red
+8 creamos RESPONSE.JS 
+9 en API creamos la carpeta COMPONENTS
+10 en la carpeta COMPONENTS creamos la carpeta USER
+11 en la carpeta USER creamos el archivo NETWORK.JS
+   const express = require("express");
+   const router = express.Router();
+   const response = require("../../../network/response");
+
+router.get("/" , function(req,res){  //a todo lo que venga a /
+	
+	response.success(req,res, "todo funcionaaa", 200)
+	}
+	
+	module.exports= router; //IMPORTANTE
+12 network/response.js //tendremos todas las respuestas de 1 archivo
+ 			//asi todas seran coherentes entre si
+exports.success = function (req,res,message,status){
+let statusCode = status || 200;
+let statusMessage = message || ""
+
+
+res.status(status).send({
+error:false,
+status:status,
+body:message
+})}
+
+exports.error = function (req,res,message,status){
+let statusCode = status || 500;//si nos viene algo lo utilizamos sino mandamos 500
+let statusMessage = message || "Internal Server Error"
+s
+
+res.status(statusCode).send({
+error:false,
+status:status,
+body:message
+}
+

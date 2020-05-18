@@ -1,0 +1,101 @@
+141 ya vimos como llevarse la db a un microservicio
+pero en algunos entornos hay que exponer todos los microservicio
+por ej en serverless, en este caso no es la mejor forma
+--
+este tipo de division se llama vertical 
+la db en un microservicio
+la api en un microservicio
+etc etc
+
+otro tipo de divsion es la que ya teniamos en el proyecto la monolitica
+una api con muchos servicios dentro
+
+
+, ahora veremos como es la division horizontal un microservicio entero
+
+vamos con los post
+
+142 en la raiz creamos una carpeta POST
+143 creamos index.js //es igual al index de api
+
+const express = require("express");
+const post = require("./components/post/network")
+
+const user = require("./components/user/network");
+const config = require("../config")
+const bodyParser = require("body-parser");
+
+
+const errors = require("../network/errors");
+const app= express();
+
+
+app.use(bodyParser.json())
+
+//          ROUTER
+
+app.use("/api/post", post)
+
+app.use(errors)
+
+app.listen(config.post.port, ()=>{
+    console.log("servicio POSTS inicializado en ", config.post.port)
+});
+//        /ROUTER
+
+
+//aca ya tenemos un servidor donde estamos creando una api para post que podemos servir en cualquier otro lado ya es un microservicio independiente
+
+144 en config.js
+module.exports={
+    api:{
+        port: process.env.API_PORT || 3000
+    },
+    jwt:{
+        secret:process.env.JWT_SECRET ||"NO SECRET"
+    },
+    mysql:{
+        host: process.env.MYSQL_HOST || "remotemysql.com",
+        user: process.env.MYSQL_USER|| "i4ifwNuCCc",
+        password: process.env.MYSQL_PASS || "ZqUDG2jiGk",
+        database: process.env.MYSQL_DB|| "i4ifwNuCCc",
+
+    },
+    mysqlService:{
+        host: process.env.MYSQL_SRV_HOST || "localhost",
+        port: process.env.MYSQL_SRV_PORT || 3001
+    },
+    post:{
+	port: process.env.POST_PORT || 3002
+	}
+}
+
+145 en POST creamos components y movemos la carpeta post de la api 
+hacia los components de la carpeta POST en la raiz
+
+146 en API en INDEX.js 
+borramos la ruta de post 
+y borramos el require de post 
+
+147 inicializamos los 3 servers DE LOS 3 microservicios
+ en insmonia en leer post 
+ cambiamos el 3000 por el 3002 y TODO funciona!
+
+ahora ya tenemos el microservicio de api y el de post que pueden ser expuestos 
+
+a tambien tenemso el de la base de datos que podemos usarlo o no,
+
+b el post ataca contra la base de datos embebida no contra la remota
+ es un microservicio horizontal ya que tiene el index network y controller
+
+c el microservicio de la api tiene su propio network y controlador 
+
+esto nos permite que nuestro backend crezca de manera independiente
+y cuando cresca hasta podemos levantar un conteiner de doker o un kubernete para cada microservicio
+
+esto es un backend escalable 	
+
+peeero tenemos que inicializarlos desde terminales distintas y es un caosss imaginate con 100 microservicios IMPOSIBLE
+asi que ahora en la siguiente clase veremos como gestionarlos eficientementee
+
+

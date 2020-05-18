@@ -1,0 +1,78 @@
+158 ahora vamos a trabajar con el cache
+el cache es un pequeño servicio entre la peticion y la DB que lo que hace es que si ya cargamos x datos los guarde asi ya la 2da vez respondera mas rapido y mas importante cuando halla mucho trafico te salvara de no sobrecargar la DB
+
+159 Vamos a hacer toda la gestion de cache con redis 
+
+160 en la raiz del proyecto creamos la carpeta CACHE
+161 creamos el index.js
+
+const express = require("express");
+
+const bodyParser = require("body-parser");
+const config = require("../config");
+
+const app= express();
+const router = require("./network")
+
+app.use(bodyParser.json());
+
+//ROUTES
+
+app.use("/", router)
+
+app.listen(config.cacheService.port, ()=>{
+    console.log("Servicio de cache inicializado en"
+    ,config.cacheService.port )
+})
+
+162 creamos el archivo network
+
+const express = require("express");
+const response = require("../network/response")
+const store = require("../store/redis");
+
+const router = express.Router();
+//ROUTES
+
+router.get("/:table", list)
+
+router.get("/:table/:id" , get)
+
+router.put("/:table" , upsert)
+
+//functions
+
+async function list(req,res,next){
+    const datos = await store.list(req.params.table)
+    response.success(req,res,datos,200)
+}
+
+async function get(req,res,next){
+    const datos = await store.get(req.params.table, req.params.id)
+    response.success(req,res,datos,200)
+}
+
+async function upsert(req,res,next){
+    const datos = await store.upsert(req.params.table, req.body)
+    response.success(req,res,datos,200)
+}
+
+module.exports = router;
+
+163 en la carpeta STORE creamos el archivo REDIS.JS
+164 en la carpetta STORE creamos el archivo remote-cache.js
+const remote = require("./remote")
+const config = require("../config");
+
+module.exports= new remote(config.cacheService.host, config.cacheService.port)
+
+
+165 en config.js
+cacheService:{
+  host: process.env.MYSQL_SRV_HOST || "localhost",
+  port: process.env.MYSQL_SRV_PORT || 3003
+}
+
+166 NOMDEMON cache/index.js //ya esta funcionando , vamos a agregarle las funciones!
+
+

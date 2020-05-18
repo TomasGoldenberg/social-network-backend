@@ -1,0 +1,118 @@
+75-seguro que ya te diste cuenta que cuando le negamos el permiso porque el usuario no es el correcto nos dice
+no puedes hacer esto pero debajo nos da toda la traza del error
+GRAN HUECO DE SEGURIDAD no podemos indicarle al usuario en que parte del programa esta el error asi que ahora vamos a darles un handle
+
+76- en la raiz del proyecto esta la carpeta network
+dentro de network
+ crearemos el archivo errors.js 
+para gestionar todos los errores
+
+const response = require("./response");
+
+
+function errors(err, req, res, next){
+console.error("[error]", err)
+
+const message = err.message || "Error Interno";
+const status = err.statusCode || 500;
+
+response.error(req,res,message, status)
+}
+
+module.exports = errors;
+
+77 api/index.js
+
+const express = require("express");
+const auth = require("./components/auth/network");
+const user = require("./components/user/network");
+const config = require("../config")
+const bodyParser = require("body-parser");
+const swaggerUi  = require("swagger-ui-express")
+const swaggerDoc = require("./swagger.json")
+
+const errors = require("../network/errors");
+
+const app= express();
+
+
+app.use(bodyParser.json())
+
+//          ROUTER
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc))
+app.use("/api/user", user);
+app.use("/api/auth", auth)
+app.use(errors); //siempre debe ser la ultima ruta 
+
+
+app.listen(config.api.port, ()=>{
+    console.log("api inicializada en ", config.api.port)
+});
+//        /ROUTER
+
+78 incializamos el server
+ en insomnia hacemos un put con el id incorrecto para que nos de error
+y ahora mucho mas prolijamente en el body viene el"no puedes hacer esto"
+ y ya no viene toda la traza del error que es un hueco de seguridad
+PERO EL CODIGO SIGUE SIENDO 500 vamos a usar nuestro middleware de error
+para manejar mejor este error
+
+79 EN LA RAIZ DEL PROYECTO creamos la carpeta UTILS aqui crearemos todas las utilidades que no pertenecen a ninguna capa en especifico sino a todo el proyecto  
+80 en UTILS creamos el archivo ERROR.JS
+
+function err(message,code){
+	let e = new Error(message)
+	
+	if(code){
+	e.statusCode = code
+	}
+
+	return e 
+}
+
+module.exports = err;
+
+81 vamos la carpeta del la raiz AUTH al index.js
+//aqui estamos tirando un error ahora vamos a usar nuestro middleware de error que creamos para tener un mejor error handle
+
+const error = require("../utils/error")
+
+const check = {
+    own: function(req, owner) {
+        const decoded = decodeHeader(req);
+        console.log(decoded);
+
+        if (decoded.id !== owner) {
+		throw error("No puedes hacer esto ", 401)
+            //throw new Error('No puedes hacer esto');
+        }
+    },
+}
+
+82 incializamos el server
+ en insomnia hacemos un put con el id incorrecto para que nos de error
+y ahora si nos dice "no puedes hacer esto" pero ya trae el codigo 401
+
+asi podemos hacer que todos nuestros errores de nuestro programa en lugar de tirar siempre 500 tire el codigo coherente en cada caso
+
+ademas respondera con los errores de forma util sencilla prolija y sin dar al usuario ningun dato peligroso para la seguridad 
+
+si quieres agregar complejidad, si queres mandar mas params en el error , tener una descripcion o lo que sea simplemente modificas el middleware , le agregas todos los params que queres
+y en la response le mandas el error, el codigo como hicimos en este ejemplo y todos los params que hayas agregado! 
+
+84- cambiaremos todos los throw error de index de auth en la raiz
+    y en user/network en lugar de gestionar los errores en el catch con una function
+    podemos pasarle next como param a las funciones y el .catch sea el next
+    x ejemplo
+
+    function list(req,res, next){
+    controller.list()
+    .then((lista)=>{
+        response.success(req,res,lista,200)
+    })
+    .catch(next);
+};
+y ahi ya usamos el middleware
+
+FELICITACIONES YA TENEMOS TODA LA GESTION DE ERRORES DE NUESTRA APP 
+LISTA DE FORMA SEGURA ELEGANTE Y POTENTE

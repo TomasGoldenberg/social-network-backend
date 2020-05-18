@@ -1,0 +1,111 @@
+105 Relacionando entidades : follow
+en las bases de datos relacionales cuando una relacion es de N a N 
+se crea una tabla intermediaria entre ambas entidades
+un user_follow un from y to 
+
+106 vamos a mysql a crear esa tabla user_follow
+user_from varchar 32
+user_to   varchar 30
+
+crearemos una key que no dependa de 1 objeto sino de 2 
+creamos indice en 2 columnas y ambas tendran llavecita
+
+
+107 vamos a user/network
+
+//ROUTES
+router.post("/follow/:id",secure("follow"), follow)
+
+//functions
+//1er param el seguidor 2 param el que seguiremos
+function follow(req,res,netx){
+controller.follow(req.user.id,  req.params.id)
+	.then((data)=>{
+	  response.success(req,res,data,201)	
+		})
+	.catch(next);
+
+}
+
+108 vamos a user/secure.js
+const auth = require("../../../auth");
+
+
+module.exports= function checkAuth(action){
+
+    function middleware(req,res,next){
+        switch(action){
+            case "update":
+                const owner = req.body.id;
+                auth.check.own(req,owner)
+                next()
+                break;
+
+	    case "follow":
+               //solo necesitamos comprobar su token
+                auth.check.logged(req)
+                next()
+                break;
+	
+            
+            default:
+                next()
+
+        }
+    }
+
+return middleware;
+}
+
+109 vamos a AUTH/index (el de la raiz)
+const check = {
+    own: function(req, owner) {
+        const decoded = decodeHeader(req);
+        console.log(decoded);
+
+        if (decoded.id !== owner) {
+            throw error("No podes hacer esto", 401)
+            //throw new Error('No puedes hacer esto');
+        }
+    },
+
+
+     logged: function(req) {
+        const decoded = decodeHeader(req);
+
+    },
+}
+
+
+110 vamos a user/controller a crear la funcion de follow
+
+const follow = (from, to) =>
+     store.upsert(TABLA + '_follow', {
+          user_from: from, user_to: to 
+        })
+
+
+return {
+list,
+get,
+upsert,
+follow
+}
+
+
+111 inicializamos el server
+    vamos a insomnia 
+	hacemos el loggin con un user agarramos su token
+   creamos una peticion post /api/user/follow/ //llamada follow
+    SIN BODY
+    pegamos su token en auth 
+      /api/user/follow/123 //hagamos que ese user siga al user id 123
+
+112 vamos a la base de datos y ya se creo una columna
+ el id del user que loggeamos seguimos al user id 123
+
+
+113 esto no tiene nada que ver pero el bearer es
+
+Bearer (portador)
+La autenticación de portador (también llamada autenticación de token ) es un esquema de autenticación HTTP que involucra tokens de seguridad llamados tokens de portador. El nombre “Autenticación de portador” puede entenderse como “dar acceso al portador de este token”. El token portador es una cadena críptica, generalmente generada por el servidor en respuesta a una solicitud de inicio de sesión. El cliente debe enviar este token en el encabezado “Authorization” al realizar solicitudes a recursos protegidos
