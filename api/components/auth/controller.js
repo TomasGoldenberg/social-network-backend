@@ -16,7 +16,7 @@ module.exports= function(injectedStore){
             if(sonIguales === true){
                 return auth.sign(JSON.parse(JSON.stringify(data)))//generar token
             }else{
-                throw new Error("Usuario o contraseña no valida")
+                throw new Error("Usuario o contraseña no validas")
             }
           });
         
