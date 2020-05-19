@@ -17,6 +17,6 @@ app.use("/api/post", post)
 app.use(errors)
 
 app.listen(config.post.port, ()=>{
-    console.log("servicio de POSTS running on  ", config.post.port)
+    console.log("service of  POSTS running on  ", config.post.port)
 });
 //        /ROUTER
